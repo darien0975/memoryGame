@@ -1,0 +1,114 @@
+@charset "UTF-8";
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "華康儷中黑";
+}
+
+body {
+  background-color: #a722e4;
+}
+
+button {
+  border: none;
+  border-radius: 0.3em;
+  padding: 1em 1.5em;
+  cursor: pointer;
+}
+
+.wrapper {
+  box-sizing: content-box;
+  width: 26.87em;
+  padding: 1.5em 2em;
+  background-color: #ffffff;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  border-radius: 0.6em;
+}
+.wrapper .stats-container {
+  text-align: right;
+  margin-bottom: 1.2em;
+}
+.wrapper .stats-container span {
+  font-weight: 600;
+}
+.wrapper .game-container {
+  position: relative;
+  width: 100%;
+  display: grid;
+  gap: 0.5em;
+  justify-content: center;
+}
+.wrapper .game-container .card-container {
+  position: relative;
+  width: 5em;
+  height: 5em;
+  cursor: pointer;
+}
+.wrapper .game-container .card-container .card-before, .wrapper .game-container .card-container .card-after {
+  position: absolute;
+  border-radius: 5px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #000000;
+  transition: transform 0.7s ease-out;
+  backface-visibility: hidden;
+}
+.wrapper .game-container .card-container .card-before {
+  background-color: #a46322;
+  font-size: 2.8em;
+  font-weight: 600;
+}
+.wrapper .game-container .card-container .card-after {
+  background-color: #ffffff;
+  transform: rotateY(180deg);
+}
+.wrapper .game-container .card-container.flipped .card-before {
+  transform: rotateY(180deg);
+}
+.wrapper .game-container .card-container.flipped .card-after {
+  transform: rotateY(0deg);
+}
+.wrapper #stop {
+  font-size: 1.1em;
+  display: block;
+  margin: 1.1em auto 0 auto;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.control-container {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #a722e4;
+  top: 0;
+}
+.control-container button {
+  font-size: 1em;
+  box-shadow: 0 0.6em 2em rgba(86, 66, 0, 0.2);
+}
+.control-container #result {
+  text-align: center;
+}
+.control-container #result h2 {
+  font-size: 2.5em;
+}
+.control-container #result h4 {
+  font-size: 1.8em;
+  margin: 0.6em 0 1em 0;
+}
+
+.hide {
+  display: none;
+}/*# sourceMappingURL=style.css.map */

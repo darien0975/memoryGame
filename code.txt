@@ -1,0 +1,323 @@
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style/style.css">
+</head>
+<body>
+    <section>
+    <div class="wrapper">
+       <div class="stats-container">
+           <div id="moves-count"></div>
+           <div id="time"></div>
+       </div>
+       <div class="game-container"></div>
+       <button id="stop" class="hide">停止遊戲</button>
+    </div>
+    <div class="control-container">
+        <p id="result"></p>
+        <button id="start">開始遊戲</button>
+    </div>
+</section>
+     <script src="app.js"></script>
+</body>
+</html>
+
+css
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: '華康儷中黑';
+}
+
+body{
+    background-color: #f4c531;
+}
+
+button{
+    border: none;
+    border-radius: 0.3em;
+    padding: 1em 1.5em;
+    cursor: pointer;
+}
+
+.wrapper{
+    box-sizing: content-box;
+    width: 26.87em;
+    padding: 1.5em 2em;
+    background-color: #ffffff;
+    position: absolute;
+    transform: translate(-50% ,-50%);
+    top: 50%;
+    left: 50%;
+    border-radius: 0.6em;
+    .stats-container{
+        text-align: right;
+        margin-bottom: 1.2em;
+        span{
+            font-weight: 600;
+        }
+    }
+    .game-container{
+        position: relative;
+        width: 100%;
+        display:grid;
+        gap:0.5em;
+        .card-container{
+            position: relative;
+            width: 6.25em;
+            height: 6.25em;
+            cursor: pointer;
+            .card-before , .card-after{
+                position: absolute;
+                border-radius: 5px;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 3px solid #000000;
+                transition: transform 0.7s ease-out;
+                backface-visibility: hidden;
+            }
+            .card-before{
+                background-color: #f4c531;
+                font-size: 2.8em;
+                font-weight: 600;
+            }
+            .card-after{
+                background-color: #ffffff;
+                transform: rotateY(180deg);
+            }
+        }
+        .card-container.flipped{
+            .card-before{
+                transform: rotateY(180deg);
+            }
+        }
+        .card-container.flipped{
+            .card-after{
+                transform: rotateY(0deg);
+                
+            }
+        }
+        
+        
+    }
+    #stop{
+        font-size: 1.1em;
+        display: block;
+        margin: 1.1em  auto 0 auto;
+        background-color: #000000;
+        color: #ffffff;
+    }
+
+}
+
+.control-container{
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: #f4c531;
+    top:0;
+    button{
+        font-size: 1em;
+        box-shadow: 0 0.6em 2em rgba(86 , 66 , 0 , 0.2);
+    }
+    #result{
+        text-align: center;
+        h2{
+            font-size: 2.5em;
+        }
+        h4{
+            font-size: 1.8em;
+            margin: 0.6em 0 1em 0;
+        }
+    }
+}
+
+.hide{
+    display: none;
+}
+
+
+js
+
+const moves = document.getElementById("moves-count");
+const timeValue = document.getElementById("time");
+const startBtn = document.getElementById("start");
+const stopBtn = document.getElementById("stop");
+const gameContainer = document.querySelector(".game-container");
+const result = document.getElementById("result");
+const control = document.querySelector(".control-container");
+let cards;
+let interval = null;
+let firstCard = false;
+let secondCard = false;
+
+
+// 所有圖片的陣列
+const item = [
+    { name: "蜜蜂", image: "bee.png" },
+    { name: "鱷魚", image: "crocodile.png" },
+    { name: "金剛鸚鵡", image: "macaw.png" },
+    { name: "猩猩", image: "gorilla.png" },
+    { name: "老虎", image: "tiger.png" },
+    { name: "猴子", image: "monkey.png" },
+    { name: "變色龍", image: "chameleon.png" },
+    { name: "食人魚", image: "piranha.png" },
+    { name: "蟒蛇", image: "anaconda.png" },
+    { name: "樹懶", image: "sloth.png" },
+    { name: "鳳頭鸚鵡", image: "cockatoo.png" },
+    { name: "巨嘴鳥", image: "toucan.png" }
+];
+
+let seconds = 0;
+let minutes = 0;
+
+let movesCount = 0;
+let winCount = 0;
+
+// 計時器
+const timeGenerator = () => {
+    seconds += 1;
+    if (seconds >= 60) {
+        seconds = 0;
+        minutes += 1;
+    }
+
+    // 時間顯示
+    let secondsCount = seconds < 10 ? `0${seconds}` : seconds;
+    let minutesCount = minutes < 10 ? `0${minutes}` : minutes;
+    timeValue.innerHTML = `<span>時間:</span>${minutesCount}:${secondsCount}`;
+}
+
+// 計算移動次數
+const movesCounter = () => {
+    movesCount += 1;
+    moves.innerHTML = `<span>移動次數:</span>${movesCount}`;
+}
+
+// 陣列抽8個洗牌
+const generateRandom = (size = 4) => {
+    let tempArray = [...item];
+    let cardValue = [];
+
+    size = Math.pow(size, 2) / 2;
+
+    for (let i = 0; i < size; i++) {
+        const randomIndex = Math.floor(Math.random() * tempArray.length);
+        cardValue.push(tempArray[randomIndex]);
+        tempArray.splice(randomIndex, 1);
+    }
+
+    return cardValue;
+}
+
+// 陣列排列
+const matrixGenerator = (cardValue, size = 4) => {
+    gameContainer.innerHTML = "";
+    cardValue = [...cardValue, ...cardValue];
+    cardValue.sort(() => Math.random() - 0.5);
+    for (let i = 0; i < Math.pow(size, 2); i++) {
+        gameContainer.innerHTML += `
+      <div class="card-container" data-card-value="${cardValue[i].name}">
+        <div class="card-before">?</div>
+        <div class="card-after">
+          <img src="${cardValue[i].image}" class="image"/>
+        </div>
+      </div> `;
+    }
+
+    gameContainer.style.gridTemplateColumns = `repeat(${size}, auto)`;
+
+    cards = document.querySelectorAll(".card-container");
+    cards.forEach((card) => {
+        card.addEventListener("click", () => {
+            if (!card.classList.contains("matched")) {
+                card.classList.add("flipped");
+                if (!firstCard) {
+                    firstCard = card;
+                    firstCardValue = card.getAttribute("data-card-value");
+                } else {
+                    movesCounter();
+                    secondCard = card;
+                    let secondCardValue = card.getAttribute("data-card-value");
+                    if (firstCardValue == secondCardValue) {
+                        firstCard.classList.add("matched");
+                        secondCard.classList.add("matched");
+                        firstCard = false;
+                        winCount += 1;
+
+                        if (winCount == Math.floor(cardValue.length / 2)) {
+                            result.innerHTML = `<h2>你贏了!!!</h2>
+                           <h4>移動步數:${movesCount}</h4>`;
+                            stopGame();
+                        }
+                    } else {
+                        let [tempFirst, tempSecond] = [firstCard, secondCard];
+                        firstCard = false;
+                        secondCard = false;
+                        let delay = setTimeout(() => {
+                            tempFirst.classList.remove("flipped");
+                            tempSecond.classList.remove("flipped");
+                        } , 600);
+                    }
+                }
+            }
+        });
+    });
+};
+
+const stopGame = () =>{
+  control.classList.remove("hide");
+  stopBtn.classList.add("hide");
+  startBtn.classList.remove("hide");
+  startBtn.innerHTML = "繼續遊戲";
+  clearInterval(interval);
+  interval = null;
+}
+
+//開始遊戲
+startBtn.addEventListener("click" , ()=>{
+  movesCount = 0;
+  time = 0;
+
+  control.classList.add("hide");
+  stopBtn.classList.remove("hide");
+  startBtn.classList.add("hide");
+
+  interval  = setInterval(timeGenerator , 1000);
+  moves.innerHTML = `<span>移動步數:</span>${movesCount}`;
+  
+  initializer();
+})
+
+//停止遊戲
+
+stopBtn.addEventListener("click" , stopGame );
+
+
+
+// 初始化
+const initializer = () => {
+   seconds = 0;
+   minutes = 0;
+    result.innerHTML = "";
+    winCount = 0;
+    let cardValue = generateRandom();
+    matrixGenerator(cardValue);
+    
+}
+
+
